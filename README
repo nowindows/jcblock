@@ -11,7 +11,7 @@ Walter S. Heath and updated since on SourceForge (see below).
 This modified jcblock application is simplified and optimized for Raspberry Pi 
 and a TRENDnet TFM-561U USB modem.
 
-Specific modifcations from latest WSH SourceForge (and github / rajraj / 
+Specific modifications from latest WSH SourceForge (and github / rajraj / 
 jclbock) version are:
 - Deleted truncate,c, tones.c, common.h and all references to these files
 - Set /dev/ttyACM0 as the default serial port
@@ -21,10 +21,10 @@ jclbock) version are:
   been modified and unified to use a YYYYMMDDThhmm format as the timestamp and 
   to allow easy use of standard Linux commands, such as sed, sort, awk, grep, 
   cut, paste, etc. to report on junk call status and "clean up" the data files. 
-  The whitelist.dat and blacklist.dat file can be easily sorted, chronoligically
+  The whitelist.dat and blacklist.dat file can be easily sorted, chronologically
   by using the Linux sort command. For example:
-      cat blacklist.dat | sort -r -n -k1.20,1.30
-  Then old entries can be easily deleted
+      cat blacklist.dat | sort -r -n -k1.21,1.30
+  Then old entries can be easily deleted and/or archived
 - In addition to using blacklist entries to check for junk calls, the length of  
   the caller ID entry is used to drop calls that have single character phone 
   numbers and single character caller ID's
