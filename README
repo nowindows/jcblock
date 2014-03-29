@@ -4,15 +4,17 @@ Program: jcblock
 A program to block telemarketing (junk) calls.
 
 ________________________________________________________________________________
-RECENT ACTIVITY (20140327):
+RECENT ACTIVITY (March 2014):
 This version of jcblock is a modification of the program written in 2008 by 
-Walter S. Heath and updated since on SourceForge (see below).
+Walter S. Heath and subsequently updated on SourceForge (see below).
 
-This modified jcblock application is simplified and optimized for Raspberry Pi 
-and a TRENDnet TFM-561U USB modem.
+This jcblock version is simplified and optimized for Raspberry Pi - Model B, 
+running Raspbian, and a TRENDnet TFM-561U USB modem.  It was not tested with 
+other modems. Also, because the tones function is eliminated, no special 
+packages need to be installed.
 
-Specific modifications from latest WSH SourceForge (and github / rajraj / 
-jclbock) version are:
+Specific modifications from latest WSH SourceForge or github/rajraj/jclbock
+versions are:
 - Deleted truncate,c, tones.c, common.h and all references to these files
 - Set /dev/ttyACM0 as the default serial port
 - The timestamp for messages is obtained from the OS intead of the modem 
@@ -29,6 +31,7 @@ jclbock) version are:
   the caller ID entry is used to drop calls that have single character phone 
   numbers and single character caller ID's
 - Function write_blacklist has been deleted since it was not used
+- The space insertion code was eliminated from the wait_for_response function
 - Shell script ConvertCID.sh is included to convert whitelist.dat, 
   blacklist.dat, and callerID.dat from the WSH jcblock old format to the new 
   "condensed" format

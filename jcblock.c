@@ -1,39 +1,33 @@
 /*
- *	Program name: jcblock
- *
- *	File name: jcblock.c
- *
- *	Copyright: 	Copyright 2008 Walter S. Heath
- *
- *	Copy permission:
- *	This program is free software: you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation, either version 3 of the License, or
- *	(at your option) any later version.
- *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
- *
- *	You may view a copy of the GNU General Public License at:
- *	           <http://www.gnu.org/licenses/>.
- *
- *	Description:
- *	A program to block telemarketing (junk) calls.
- *	This program connects to a serial port modem and listens for
- *	the caller ID string that is sent between the first and second
- *	rings. It records the string in file callerID.dat. It then
- *	reads strings from file whitelist.dat and scans them against
- *	the caller ID string for a match. If it finds a match it accepts
- *	the call. If a match is not found, it reads strings from file
- *	blacklist.dat and scans them against the caller ID string for a
- *	match. If it finds a match to a string in the blacklist, it sends
- *	an off-hook command (ATH1) to the modem, followed by an on-hook
- *	command (ATH0). This terminates the junk call.
- *
- *	For more details, see the README and UPDATES files.
- */
+Program name: jcblock
+
+File name: jcblock.c
+
+Copyright: 	Copyright 2008 Walter S. Heath
+
+Copy permission:
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software 
+Foundation, either version 3 of the License, or any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See theGNU General Public License for more details.
+
+You may view the GNU General Public License at: <http://www.gnu.org/licenses/>.
+
+Description:
+A program to block telemarketing (junk) calls. This program connects to a serial
+port modem and listens for the caller ID string that is sent between the first
+and second rings. It records the string in file callerID.dat. It then reads 
+strings from file whitelist.dat and scans them against the caller ID string for
+a match. If it finds a match it accepts the call. If a match is not found, it
+reads strings from file blacklist.dat and scans them against the caller ID
+string for a match. If it finds a match to a string in the blacklist, it sends
+an off-hook command (ATH1) to the modem, followed by an on-hook command (ATH0).
+This terminates the junk call. For more details, see the README file.
+*/
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -42,7 +36,6 @@
 #include <errno.h>
 #include <termios.h>
 #include <time.h>
-
 #include <signal.h>
 
 typedef int bool;
@@ -56,10 +49,6 @@ FILE *fpCa;                // callerID.dat file
 FILE *fpBl;               // blacklist.dat file
 
 #define DEBUG
-
-// Comment out the following define if you don't have an answering
-// machine attached to the same telephone line.
-#define ANS_MACHINE
 
 #define CALLERID_YES 1
 #define CALLERID_NO 0
@@ -172,11 +161,9 @@ modemInitialized = TRUE;
   sync();
 }
 
-//
-// Initialize the modem.
-// The 'doCallerID' argument allows initialization with
+// Initialize the modem.  The 'doCallerID' argument allows initialization with
 // or without sending the caller ID command (AT+VCID=1).
-//
+
 int init_modem(int fd, int doCallerID )
 {
   // Reset the modem
@@ -208,9 +195,8 @@ printf("sending AT+VCID=1 command...\n");
   return(0);
 }
 
-//
+
 // Send command string to the modem
-//
 int send_modem_command(int fd, char *command )
 {
   char buffer[255];     // Input buffer
@@ -256,15 +242,10 @@ int send_modem_command(int fd, char *command )
   return( -1 );
 }
 
-//
 // Wait (forever!) for calls...
-//
 int wait_for_response(fd)
 { //Begin of wait_for_response
   char buffer[255];     // Input buffers
-  char buffer2[255];
-  int nbytes2;          // bytes in buffer2
-  char buffer3[255];
   char callerIDentry[255];
 
   char bufRing[10];     // RING input buffer
@@ -272,32 +253,29 @@ int wait_for_response(fd)
   int i, j;
   struct tm *tmPtr;
   time_t currentTime;
-  int currentYear, cY, cM, cD, ch, cm, NAMEn, NMBRn ;
-  char curYear[4];
-
+  int cY, cM, cD, ch, cm, NAMEn, NMBRn ;
   char callTime[15];     // Call time
 
   // Get a string of characters from the modem
   while(1)
   {
 #ifdef DEBUG
-    // Flush anything in stdout (needed if stdout is redirected to
-    // a disk file).
+    // Flush anything in stdout (needed if stdout is redirected to a disk file).
     fflush(stdout);     // flush C library buffers to kernel buffers
     sync();             // flush kernel buffers to disk
       printf("Waiting for modem event...\n");
 #endif
 
-    // Block until at least one character is available. After first character is
-    // received, continue reading characters until inter-character timeout
-    // (VTIME) occurs (or VMIN characters are received, which shouldn't happen,
-    // since VMIN is set larger than the longest string expected).
+// Block until at least one character is available. After first character is
+// received, continue reading characters until inter-character timeout
+// (VTIME) occurs (or VMIN characters are received, which shouldn't happen,
+// since VMIN is set larger than the longest string expected).
 
     inBlockedReadCall = TRUE;
     nbytes = read( fd, buffer, 250 );
     inBlockedReadCall = FALSE;
 
-    // Replace '\n' and '\r' characters with '-' characters
+// Replace '\n' and '\r' characters with '-' characters
     for( i = 0; i < nbytes; i++ )
     {
        if( ( buffer[i] == '\n' ) || ( buffer[i] == '\r' ) )
@@ -306,95 +284,33 @@ int wait_for_response(fd)
        }
     }
 
-    // Put a '\n' at its end and null-terminate it
+// Put a '\n' at its end and null-terminate it
     buffer[nbytes] = '\n';
     buffer[nbytes + 1] = 0;
 
 #ifdef DEBUG
-    printf("nbytes: %d, str: %s", nbytes, buffer );
+    printf("%d bytes received: %s", nbytes, buffer );
 #endif
 
-    // A string was received. If its a 'RING' string, just ignore it.
+// A string was received. If its a 'RING' string, just ignore it.
     if( strstr( buffer, "RING" ) != NULL )
     {
       continue;
     }
 
-    // Ignore a string "AT+VCID=1" returned from the modem.
+// Ignore a string "AT+VCID=1" returned from the modem.
     if( strncmp( buffer, "AT+VCID=1", 9 ) == 0 )
     {
       continue;
     }
 
-    // Caller ID data was received after the first ring.
+// Caller ID data was received after the first ring.
     numRings = 1;
 
     // A caller ID string was constructed.
 
-    // If space(' ') characters are not present before and after all
-    // equal('=') characters, insert them (some modems don't insert them!).
-    for( i = 0, j = 0; i < nbytes + 1; i++ )
-    {
-      if( buffer[i] == '=' )
-      {
-        if( buffer[i - 1] != ' ' )    // If space before is missing...
-        {
-          buffer2[j++] = ' ';
-          buffer2[j++] = buffer[i];
-          if( buffer[i + 1] != ' ' )  // If space after is missing...
-          {
-            buffer2[j++] = ' ';
-          }
-        }
-        else                          // If space before is there...
-        {
-          buffer2[j++] = buffer[i];
-        }
-      }
-      else                            // If this char is not a '='...
-      {
-        buffer2[j++] = buffer[i];
-      }
-    }
-    nbytes2 = j;                      // number of bytes in buffer2
-
-    // 
-    // The DATE field does not contain the year. Compute the year and insert it.
-    if( time( &currentTime ) == -1 )
-    {
-      printf("time() failed\n" );
-      return -1;
-    }
-
     tmPtr = localtime( &currentTime );
-    currentYear = tmPtr->tm_year -100;  // years since 2000
-   
-    if( sprintf( curYear, "%02d", currentYear ) != 2 )
-    {
-      printf( "sprintf() failed\n" );
-      return -1;
-    }
 
-    // Zero a new buffer with room for the year.
-    for( i = 0; i < 100; i++ )
-    {
-      buffer3[i] = 0;
-    }
-
-    // Fill it but leave room for the year
-    for( i = 0; i < 13; i++ )
-    {
-      buffer3[i] = buffer2[i];
-    }
-    for( i = 13; i < nbytes2; i++ )
-    {
-      buffer3[i + 2] = buffer2[i];
-    }
-
-    // Insert the year characters.
-    buffer3[13] = curYear[0];
-    buffer3[14] = curYear[1];
-    
 // Create callTime from current time and null terminate it
     cY = tmPtr->tm_year +1900;  // current year
     cM = tmPtr->tm_mon +1;  
@@ -403,19 +319,19 @@ int wait_for_response(fd)
     cm = tmPtr->tm_min ;  
     sprintf(callTime,"%4d%02d%02dT%02d%02d",cY,cM,cD,ch,cm) ;
     callTime[13] = 0;
-    
+
 // set the caller ID name string callID and terminate it
-    const char *p1callID = strstr(buffer3, "NAME")+7;
-    const char *p2callID = strstr(buffer3, "NMBR")-2;
+    const char *p1callID = strstr(buffer, "NAME")+7;
+    const char *p2callID = strstr(buffer, "NMBR")-2;
     size_t lencallID = p2callID-p1callID;
     char *callID = (char*)malloc(sizeof(char)*(lencallID+1));
     strncpy(callID, p1callID, lencallID);
     callID[lencallID] = '\0';
-    
+
 // set the caller number string callNumber and terminate it
     int    cch = '-';
-    const char *p1N = strstr(buffer3, "NMBR")+7;
-    const char *p2N = strrchr(buffer3, cch)-1;
+    const char *p1N = strstr(buffer, "NMBR")+7;
+    const char *p2N = strrchr(buffer, cch)-1;
     size_t lenN = p2N-p1N;
     char *callNumber = (char*)malloc(sizeof(char)*(lenN+1));
     strncpy(callNumber, p1N, lenN);
@@ -426,13 +342,13 @@ int wait_for_response(fd)
     size_t lenID = strlen(callerIDentry);
     callerIDentry[lenID] = '\n';
     callerIDentry[lenID + 1] = 0;
-    
+
 #ifdef DEBUG
     printf( "%s",callerIDentry );
 #endif
 
-    // Close and re-open file 'callerID.dat' (in case it was
-    // edited while the program was running!).
+// Close and re-open file 'callerID.dat' (in case it was
+// edited while the program was running!).
     fclose(fpCa);
     if( (fpCa = fopen( "./callerID.dat", "a+" ) ) == NULL )
     {
@@ -440,23 +356,22 @@ int wait_for_response(fd)
       return(-1);
     }
 
-    // Write the record to the file
+// Write the record to the file
     if( fputs( (const char *)callerIDentry, fpCa ) == EOF )
     {
       printf("fputs( (const char *)callerIDentry, fpCa ) failed\n");
       return(-1);
     }
 
-    // Flush the record to the file
+// Flush the record to the file
     if( fflush(fpCa) == EOF )
     {
       printf("fflush(fpCa) failed\n");
       return(-1);
     }
 
-    // If a whitelist.dat file was present, compare the
-    // caller ID string to entries in the whitelist. If a match
-    // is found, accept the call and bypass the blacklist check.
+// If a whitelist.dat file was present, compare the caller ID string to entries
+// in the whitelist. If a match is found, accept call and bypass blacklist check
     if( fpWh != NULL )
     {
       if( check_whitelist( callerIDentry ) == TRUE )
@@ -467,8 +382,8 @@ int wait_for_response(fd)
       }
     }
 
-    // Compare the caller ID string to entries in the blacklist. If
-    // a match is found, answer (i.e., terminate) the call.
+// Compare the caller ID string to entries in the blacklist. If
+// a match is found, answer (i.e., terminate) the call.
     if( check_blacklist( callerIDentry ) == TRUE )
     {
       // Blacklist entry was found.
@@ -478,11 +393,10 @@ int wait_for_response(fd)
   }         // end of while()
 } // End of wait_for_response
 
-//
+
 // Compare strings in the 'whitelist.dat' file to fields in the
 // received caller ID string. If a whitelist string is present
 // (or an error occurred), return TRUE; otherwise return FALSE.
-//
 static bool check_whitelist( char *callstr )
 {
   char whitebuf[100];
@@ -494,28 +408,26 @@ static bool check_whitelist( char *callstr )
   int i;
   long file_pos_last, file_pos_next;
 
-  // Close and re-open the whitelist.dat file. Note: this seems to be necessary 
-  // to be able to write records back into the file. The write works the first
-  // time after the file is opened but not subsequently! :-(
-  // This also allows whitelist changes made while the
-  // program is running to be recognized.
-  //
+// Close and re-open the whitelist.dat file. Note: this seems to be necessary 
+// to be able to write records back into the file. The write works the first
+// time after the file is opened but not subsequently! :-( This also allows
+// whitelist changes made while the program is running to be recognized.
   fclose( fpWh );
   
-  // Re-open for reading and writing
+// Re-open for reading and writing
   if( (fpWh = fopen( "./whitelist.dat", "r+" ) ) == NULL )
   {
     printf("Re-open of whitelist.dat file failed\n" );
     return(TRUE);           // accept the call
   }
-
-  // Disable buffering for whitelist.dat writes
+  
+// Disable buffering for whitelist.dat writes
   setbuf( fpWh, NULL );
 
-  // Seek to beginning of list
+// Seek to beginning of list
   fseek( fpWh, 0, SEEK_SET );
 
-  // Save the file's current access location
+// Save the file's current access location
   if( file_pos_next = ftell( fpWh ) == -1L )
   {
     printf("ftell(fpWh) failed\n");
@@ -525,22 +437,22 @@ static bool check_whitelist( char *callstr )
 // Read and process records from the file
   while( fgets( whitebuf, sizeof( whitebuf ), fpWh ) != NULL )
   {
-    // Save the start location of the string just read and get
-    // the location of the start of the next string in the file.
+// Save the start location of the string just read and get
+// the location of the start of the next string in the file.
     file_pos_last = file_pos_next;
     file_pos_next = ftell( fpWh );
 
-    // Ignore lines that start with a '#' character (comment lines)
+// Ignore lines that start with a '#' character (comment lines)
     if( whitebuf[0] == '#' )
       continue;
 
-    // Ignore lines containing just a '\n'
+// Ignore lines containing just a '\n'
     if( whitebuf[0] == '\n' )
     {
       continue;
     }
 
-    // Ignore records that are too short (don't have room for the date)
+// Ignore records that are too short (don't have room for the date)
     if( strlen( whitebuf ) < 26 )
     {
       printf("ERROR: whitelist.dat record is too short to hold date field.\n");
@@ -549,10 +461,10 @@ static bool check_whitelist( char *callstr )
       continue;
     }
 
-    // Save the string (for writing back to the file later)
+// Save the string (for writing back to the file later)
     strcpy( whitebufsave, whitebuf );
 
-    // Make sure a '?' char is present in the string
+// Make sure a '?' char is present in the string
     if( ( strptr = strstr( whitebuf, "?" ) ) == NULL )
     {
       printf("ERROR: all whitelist.dat entry first fields *must be*\n");
@@ -562,7 +474,7 @@ static bool check_whitelist( char *callstr )
       continue;
     }
 
-    // Make sure the '?' character is within the first twenty characters
+// Make sure the '?' character is within the first twenty characters
     if( (int)( strptr - whitebuf ) > 18 )
     {
       printf("ERROR: terminator '?' is not within first 20 characters\n" );
@@ -571,14 +483,14 @@ static bool check_whitelist( char *callstr )
       continue;
     }
 
-    // Get a pointer to the search token in the string
+// Get a pointer to the search token in the string
     if( ( whitebufptr = strtok( whitebuf, "?" ) ) == NULL )
     {
       printf("whitebuf strtok() failed\n");
       return(TRUE);         // accept the call
     }
 
-    // Scan the call string for the whitelist entry
+// Scan the call string for the whitelist entry
     if( strstr( callstr, whitebufptr ) != NULL )
     {
 #ifdef DEBUG
@@ -617,15 +529,13 @@ static bool check_whitelist( char *callstr )
     }
   }                               // end of while()
 
-  // No whitelist.dat entry matched, so return FALSE.
+// No whitelist.dat entry matched, so return FALSE.
   return(FALSE);
 }
 
-//
 // Compare strings in the 'blacklist.dat' file to fields in the received caller 
 // ID string. If a blacklist string is present, send off-hook (ATH1) and
 // on-hook (ATH0) to the modem to terminate the call...
-//
 static bool check_blacklist( char *callstr )
 {
   char blackbuf[100];
@@ -638,12 +548,10 @@ static bool check_blacklist( char *callstr )
   long file_pos_last, file_pos_next;
   char yearStr[10];
 
-  // Close and re-open the blacklist.dat file. Note: this seems to be necessary
-  // to be able to write records back into the file. The write works the first
-  // time after the file is opened but not subsequently! :-(
-  // This also allows blacklist changes made while the
-  // program is running to be recognized.
-  //
+// Close and re-open the blacklist.dat file. Note: this seems to be necessary
+// to be able to write records back into the file. The write works the first
+// time after the file is opened but not subsequently! :-( This also allows
+// blacklist changes made while the program is running to be recognized.
   fclose( fpBl );
   // Re-open for reading and writing
   if( (fpBl = fopen( "./blacklist.dat", "r+" ) ) == NULL )
@@ -652,20 +560,20 @@ static bool check_blacklist( char *callstr )
     return(FALSE);
   }
 
-  // Disable buffering for blacklist.dat writes
+// Disable buffering for blacklist.dat writes
   setbuf( fpBl, NULL );
 
-  // Seek to beginning of list
+// Seek to beginning of list
   fseek( fpBl, 0, SEEK_SET );
 
-  // Save the file's current access location
+// Save the file's current access location
   if( file_pos_next = ftell( fpBl ) == -1L )
   {
     printf("ftell(fpBl) failed\n");
     return(FALSE);
   }
 
-  // Read and process records from the file
+// Read and process records from the file
   while( fgets( blackbuf, sizeof( blackbuf ), fpBl ) != NULL )
   {
     // Save the start location of the string just read and get
@@ -745,7 +653,7 @@ static bool check_blacklist( char *callstr )
 
       // Send off hook command
 #ifdef DEBUG
-      printf("sending off hook\n");
+      printf("sending off hook ... ");
 #endif
       send_modem_command(fd, "ATH1\r");
 
@@ -753,7 +661,7 @@ static bool check_blacklist( char *callstr )
 
       // Send on hook command
 #ifdef DEBUG
-      printf("sending on hook\n");
+      printf("sending on hook ... ");
 #endif
       send_modem_command(fd, "ATH0\r");
 
