@@ -5,48 +5,63 @@ A program to block telemarketing (junk) calls.
 
 ________________________________________________________________________________
 RECENT ACTIVITY (March 2014):
+
 This version of jcblock is a modification of the program written in 2008 by 
 Walter S. Heath and subsequently updated on SourceForge (see below).
 
-This jcblock version is simplified and optimized for Raspberry Pi - Model B, 
-running Raspbian, and a TRENDnet TFM-561U USB modem.  It was not tested with 
-other modems. Also, because the tones function is eliminated, no special 
-packages need to be installed.
+This version is simplified and optimized for Raspberry Pi - Model B, running 
+Raspbian, and a TRENDnet TFM-561U USB modem. It was not tested with other 
+modems.
+
+This pi setup has been running successfully for eight months.
 
 Specific modifications from latest WSH SourceForge or github/rajraj/jclbock
 versions are:
-- Deleted truncate,c, tones.c, common.h and all references to these files
-- Set /dev/ttyACM0 as the default serial port
+- Deleted truncate.c, tones.c, common.h and all references to these files 
+  (makejcblock).
+- Because the tones function was eliminated, no special packages need to be 
+  installed on the pi (ALSA).
+- Set /dev/ttyACM0 as the default serial port.
 - The timestamp for messages is obtained from the OS intead of the modem 
   (assumes that the raspberry pi has internet access - to get time)
 - The format of entries in callerID.dat, whitelist.dat, and blacklist.dat has 
   been modified and unified to use a YYYYMMDDThhmm format as the timestamp and 
   to allow easy use of standard Linux commands, such as sed, sort, awk, grep, 
   cut, paste, etc. to report on junk call status and "clean up" the data files. 
-  The whitelist.dat and blacklist.dat file can be easily sorted, chronologically
-  by using the Linux sort command. For example:
-      cat blacklist.dat | sort -r -n -k1.21,1.30
-  Then old entries can be easily deleted and/or archived
+- The whitelist.dat and blacklist.dat files can be easily sorted, 
+  chronologically by using the Linux sort command. For example:
+      cat blacklist.dat | sort -r -n -k1.21,1.30 > blacklist.dat.new
+  This sorting will place commented (#) entries at the end of the list. Then old
+  entries can be easily deleted and/or archived using Linux commands of an 
+  editor.
 - In addition to using blacklist entries to check for junk calls, the length of  
   the caller ID entry is used to drop calls that have single character phone 
-  numbers and single character caller ID's
+  numbers and single character caller ID's.
 - Function write_blacklist has been deleted since it was not used
-- The space insertion code was eliminated from the wait_for_response function
+- The space insertion code was eliminated from the wait_for_response function.
 - Shell script ConvertCID.sh is included to convert whitelist.dat, 
   blacklist.dat, and callerID.dat from the WSH jcblock old format to the new 
-  "condensed" format
+  "condensed" format (check the result with an editor).
+- Future enhancements will convert checked entries to upper case to compare 
+  against upper case blacklist entries since some callers resort to changing 
+  case of their callerID.
   
 Tips:
+- Copy the whitelist.dat.example file to whitelist.dat and make your own 
+  changes.
+- Copy the blacklist.dat.example file to blacklist.dat and make your own 
+  changes.
 - Some phone answering machines allow silencing of the first ring. This 
-  potentially allows silent call blocking if jcblock can detect and block the 
-  call before the second ring
+  potentially (it does work) allows silent call blocking if jcblock can detect 
+  and block the call before the second ring. Make sure the most recent or most 
+  received blacklist.dat entries are at the top of the list.
 - Use Linux commands to sort the blacklist.dat and whitelist.dat files. Put 
   most recent entries first (and delete or archive very old entries) to improve 
   performance
 - Periodically archive the data files to reduce size to improve performance
 - Run the raspberry pi headless and use ssh to access the junk call blocking pi 
   to edit the files, make changes, and produce reports
-- Use crontab to start the pi upon reboot of pi 
+- Use crontab to start the jcblock upon reboot of pi 
               @reboot /home/pi/jcblock/jcblock
 
 The following is a description of the new format of callerID.dat, blacklist.dat, 
