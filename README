@@ -31,7 +31,7 @@ versions are:
   "clean up" the data files. 
 - The whitelist.dat and blacklist.dat files can be easily sorted, 
   chronologically by using the Linux sort command. For example:
-      cat blacklist.dat | sort -r -n -k1.21,1.30 > blacklist.dat.new
+      cat blacklist.dat | sort -r -t"|" -k2.1,2.10 > blacklist.dat.new
   This sorting will place commented (#) entries at the end of the list. Then old
   entries can be easily deleted and/or archived using Linux commands of an 
   editor.
