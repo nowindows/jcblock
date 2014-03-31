@@ -25,9 +25,10 @@ versions are:
 - The timestamp for messages is obtained from the OS intead of the modem 
   (assumes that the raspberry pi has internet access - to get time)
 - The format of entries in callerID.dat, whitelist.dat, and blacklist.dat has 
-  been modified and unified to use a YYYYMMDDThhmm format as the timestamp and 
-  to allow easy use of standard Linux commands, such as sed, sort, awk, grep, 
-  cut, paste, etc. to report on junk call status and "clean up" the data files. 
+  been modified and unified to use a W3C Profile of ISO 8601 (YYYY-MM-DDThh:mm)
+  as the timestamp and to allow easy use of standard Linux commands, such as
+  sed, sort, awk, grep, cut, paste, etc. to report on junk call status and
+  "clean up" the data files. 
 - The whitelist.dat and blacklist.dat files can be easily sorted, 
   chronologically by using the Linux sort command. For example:
       cat blacklist.dat | sort -r -n -k1.21,1.30 > blacklist.dat.new
@@ -71,8 +72,8 @@ and whitelist.dat files.
 
 callerID.dat - written by jcblock
 Each record contains the callerID data received after the first ring of the call
-YYYYMMDDThhmm|PhoneNumber|CallerIdString|
-20140319T0801|12345678901|CallerIDString|
+YYYY-MM-DDThh:mm|PhoneNumber|CallerIdString|
+2014-03-19T08:01|12345678901|CallerIDString|
 
 blacklist.dat and whitelist.dat - read and written by jcblock. Both files use
 the same format.
@@ -84,8 +85,8 @@ The second field is the timestamp of the call. It must be 13 characters long and
 be terminated with a | character.
 The third field is a comment. It must not go beyond column 80 (for the |) and it
 must be terminated with a | character. Use a comment to describe the entry.
-Test field?        |YYYYMMDDThhmm|Comment string                               |
-TOLL FREE CALL?    |20140302T1200|18556006059, 18664715508|
+Test field?        |YYYY-MM-DDThh:mm|Comment string                               |
+TOLL FREE CALL?    |2014-03-02T12:00|18556006059, 18664715508|
 ________________________________________________________________________________
 
 

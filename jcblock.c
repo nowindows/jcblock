@@ -251,10 +251,10 @@ int wait_for_response(fd)
   char bufRing[10];     // RING input buffer
   int nbytes;           // Number of bytes read
   int i, j;
-  struct tm *tmPtr;
-  time_t currentTime;
-  int cY, cM, cD, ch, cm, NAMEn, NMBRn ;
-  char callTime[15];     // Call time
+  int NAMEn, NMBRn ;
+  time_t now = time(NULL);
+  struct tm *now_tm = localtime(&now);
+  char callTime[] = "YYYY-MM-DDTHH:MM";  
 
   // Get a string of characters from the modem
   while(1)
@@ -307,18 +307,10 @@ int wait_for_response(fd)
 // Caller ID data was received after the first ring.
     numRings = 1;
 
-    // A caller ID string was constructed.
+// A caller ID string was constructed.
 
-    tmPtr = localtime( &currentTime );
-
-// Create callTime from current time and null terminate it
-    cY = tmPtr->tm_year +1900;  // current year
-    cM = tmPtr->tm_mon +1;  
-    cD = tmPtr->tm_mday ;  
-    ch = tmPtr->tm_hour ;  
-    cm = tmPtr->tm_min ;  
-    sprintf(callTime,"%4d%02d%02dT%02d%02d",cY,cM,cD,ch,cm) ;
-    callTime[13] = 0;
+// Create callTime from current time
+	strftime(callTime, sizeof callTime, "%FT%R", now_tm);
 
 // set the caller ID name string callID and terminate it
     const char *p1callID = strstr(buffer, "NAME")+7;
@@ -402,7 +394,7 @@ static bool check_whitelist( char *callstr )
   char whitebuf[100];
   char whitebufsave[100];
   char *whitebufptr;
-  char call_date[15];
+  char call_date[18];
   char *dateptr;
   char *strptr;
   int i;
@@ -498,13 +490,13 @@ static bool check_whitelist( char *callstr )
 #endif
 
       // Get the current timestsamp from the caller ID string
-      strncpy( call_date, &callstr[0], 13 );
+      strncpy( call_date, &callstr[0], 16 );
 
       // Terminate the string
-      call_date[13] = 0;
+      call_date[16] = 0;
 
       // Update the date in the whitebufsave record
-      strncpy( &whitebufsave[20], call_date, 13 );
+      strncpy( &whitebufsave[20], call_date, 16 );
 
       // Write the record back to the whitelist.dat file
       fseek( fpWh, file_pos_last, SEEK_SET );
@@ -541,7 +533,7 @@ static bool check_blacklist( char *callstr )
   char blackbuf[100];
   char blackbufsave[100];
   char *blackbufptr;
-  char call_date[15];
+  char call_date[18];
   char *dateptr;
   char *strptr;
   int i;
@@ -672,13 +664,13 @@ static bool check_blacklist( char *callstr )
       close_open_port( CALLERID_YES );
 
       // Get the current date from the caller ID string
-      strncpy( call_date, &callstr[0], 13 );
+      strncpy( call_date, &callstr[0], 16 );
 
       // Terminate the string
-      call_date[13] = 0;
+      call_date[16] = 0;
 
       // Update the date in the blackbufsave record
-      strncpy( &blackbufsave[20], call_date, 13 );
+      strncpy( &blackbufsave[20], call_date, 16 );
 
       // Write the record back to the blacklist.dat file
       fseek( fpBl, file_pos_last, SEEK_SET );
