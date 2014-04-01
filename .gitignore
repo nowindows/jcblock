@@ -1,2 +1,5 @@
 jcblock
 .kateproject.d/
+test
+blacklist.dat.new
+callerID.Report
