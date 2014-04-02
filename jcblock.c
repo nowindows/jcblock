@@ -289,7 +289,8 @@ int wait_for_response(fd)
     buffer[nbytes + 1] = 0;
 
 #ifdef DEBUG
-    printf("%d bytes received: %s", nbytes, buffer );
+//    printf("%d bytes received: %s", nbytes, buffer );
+	printf("%s", buffer );
 #endif
 
 // A string was received. If its a 'RING' string, just ignore it.
@@ -623,13 +624,13 @@ static bool check_blacklist( char *callstr )
     }
 
     // Scan the call string for the blacklist entry or if the caller ID string
-    // is less than 20 characters in length (number is one character and caller
+    // is less than 23 characters in length (number is one character and caller
     // ID string is one in length)
-    // <20131001T1912|1|O|> 18 characters in length
-    if( (strstr( callstr, blackbufptr ) != NULL ) || (strlen(callstr) < 20))
+    // 2013-10-01T19:12|1|O| = 21 characters in length
+    if( (strstr( callstr, blackbufptr ) != NULL ) || (strlen(callstr) < 23))
     {
 #ifdef DEBUG
-      printf("blacklist entry matches: %s\n", blackbuf );
+      printf("blacklist entry matches: %s %d\n", blackbuf,strlen(callstr) );
 #endif
       // At this point, the modem is in data mode. It must be returned to
       // command mode to send it the off-hook and on-hook commands. For the
