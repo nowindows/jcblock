@@ -13,7 +13,6 @@
 firstDate=$(head -n1 $1 | cut -c-10)
 lastDate=$(tail -n1 $1 | cut -c-10)
 echo "Report By Call Frequency for $1 from $firstDate through $lastDate" >> callerID.Report
-#echo "  Count   Number        Count   CallerID" >> callerID.Report
 
 > callerNumber
 echo "\n  Count   Number" > callerNumber
@@ -25,8 +24,6 @@ cut -f3 -d'|' $1 | sort | uniq -c | sort -b -r -n -t' '  >> callerID
 
 > callers
 paste callerNumber callerID  | gawk '{ FS="\t"} ; {printf "%-22s                      %-22s\n", $1, $2}' > callers
-
-#paste callerNumber callerID   > callers
 
 cat callers >> callerID.Report
 rm callerNumber

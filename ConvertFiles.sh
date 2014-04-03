@@ -11,9 +11,10 @@
 # This needs debugging.
 
 # first the callerID.dat file
-#grep -v '^#' callerID.dat | sed 's/,/;/g' | sed 's/--DATE = \([0-9]\{4\}\)/\1,/g' | awk '{gsub(/--TIME|--NAME|--NMBR/,"")}1' | sed 's/ \= /,/g' | sed 's/--//g' | awk ' { FS=","} ; {printf "20%s-%sT%s|%s|%s|\n", $2, $1 , $3, $5, $4}' | sed 's/;/,/g' > callerID.dat.new
-
-grep -v '^#' callerID.dat | sed 's/,/;/g' | awk '{gsub(/--DATE = |--TIME|--NAME|--NMBR/,"")}1' | sed 's/ \= /,/g' | sed 's/--//g' | sed 's/^\([0-9]\{2\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1,\2,\3/g' | sed 's/,\([0-9]\{2\}\)\([0-9]\{2\}\),/,\1,\2,/g' | awk ' { FS=","} ; {printf "20%s-%s-%sT%s:%s|%s|%s|\n", $3, $1, $2 , $4, $5, $6, $7}' | sed 's/;/,/g' > callerID.dat.new
+grep -v '^#' callerID.dat | sed 's/,/;/g' | awk '{gsub(/--DATE = |--TIME|--NAME|--NMBR/,"")}1' \
+| sed 's/ \= /,/g' | sed 's/--//g' | sed 's/^\([0-9]\{2\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1,\2,\3/g'\
+| sed 's/,\([0-9]\{2\}\)\([0-9]\{2\}\),/,\1,\2,/g' \
+| awk ' { FS=","} ; {printf "20%s-%s-%sT%s:%s|%s|%s|\n", $3, $1, $2 , $4, $5, $6, $7}' | sed 's/;/,/g' > callerID.dat.new
 
 # the blacklist.dat file
 grep -v '^#' blacklist.dat | cut -c1-19 > CID
