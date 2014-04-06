@@ -10,17 +10,19 @@
 #2014-01-21T11:25|1|Unavailable |
 
 > callerID.Report
-firstDate=$(head -n1 $1 | cut -c-10)
-lastDate=$(tail -n1 $1 | cut -c-10)
+firstDate=$(cat callerID.dat | head -n1 $1 | cut -c-10)
+lastDate=$(cat callerID.dat | tail -n1 $1 | cut -c-10) 
 echo "Report By Call Frequency for $1 from $firstDate through $lastDate" >> callerID.Report
+totalCalls=$(cat $1 | wc -l)
+echo "Total Calls: $totalCalls" >> callerID.Report
 
 > callerNumber
 echo "\n  Count   Number" > callerNumber
-cut -f2 -d'|' $1 | sort | uniq -c | sort -b -r -n -t' ' >> callerNumber
+cat $1 |  cut -f2 -d'|' $1 | sort | uniq -c | sort -b -r -n -t' ' >> callerNumber
 
 > callerID
 echo "\n  Count   CallerID" > callerID
-cut -f3 -d'|' $1 | sort | uniq -c | sort -b -r -n -t' '  >> callerID
+cat $1 |  cut -f3 -d'|' $1 | sort | uniq -c | sort -b -r -n -t' '  >> callerID
 
 > callers
 paste callerNumber callerID  | gawk '{ FS="\t"} ; {printf "%-22s                      %-22s\n", $1, $2}' > callers

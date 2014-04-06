@@ -112,20 +112,20 @@ int main(int argc, char **argv)
   printf( "%s", copyright );
 
   // Open or create a file to append caller ID strings to
-  if( (fpCa = fopen( "./callerID.dat", "a+" ) ) == NULL )
+  if( (fpCa = fopen( "/home/pi/jcblock/callerID.dat", "a+" ) ) == NULL )
   {
     printf("fopen() of callerID.dat failed\n");
     return;
   }
 
   // Open the whitelist file (for reading & writing)
-  if( (fpWh = fopen( "./whitelist.dat", "r+" ) ) == NULL )
+  if( (fpWh = fopen( "/home/pi/jcblock/whitelist.dat", "r+" ) ) == NULL )
   {
     printf("fopen() of whitelist.dat failed. A whitelist is not required.\n" );
   }
 
   // Open the blacklist file (for reading & writing)
-  if( (fpBl = fopen( "./blacklist.dat", "r+" ) ) == NULL )
+  if( (fpBl = fopen( "/home/pi/jcblock/blacklist.dat", "r+" ) ) == NULL )
   {
     printf("fopen() of blacklist.dat failed. A blacklist must exist.\n" );
     return;
@@ -343,7 +343,7 @@ int wait_for_response(fd)
 // Close and re-open file 'callerID.dat' (in case it was
 // edited while the program was running!).
     fclose(fpCa);
-    if( (fpCa = fopen( "./callerID.dat", "a+" ) ) == NULL )
+	if( (fpCa = fopen( "/home/pi/jcblock/callerID.dat", "a+" ) ) == NULL )
     {
       printf("re-fopen() of callerID.dat failed\n");
       return(-1);
@@ -408,7 +408,7 @@ static bool check_whitelist( char *callstr )
   fclose( fpWh );
   
 // Re-open for reading and writing
-  if( (fpWh = fopen( "./whitelist.dat", "r+" ) ) == NULL )
+  if( (fpWh = fopen( "/home/pi/jcblock/whitelist.dat", "r+" ) ) == NULL )
   {
     printf("Re-open of whitelist.dat file failed\n" );
     return(TRUE);           // accept the call
@@ -547,7 +547,7 @@ static bool check_blacklist( char *callstr )
 // blacklist changes made while the program is running to be recognized.
   fclose( fpBl );
   // Re-open for reading and writing
-  if( (fpBl = fopen( "./blacklist.dat", "r+" ) ) == NULL )
+  if( (fpBl = fopen( "/home/pi/jcblock/blacklist.dat", "r+" ) ) == NULL )
   {
     printf("re-open fopen( blacklist) failed\n" );
     return(FALSE);
