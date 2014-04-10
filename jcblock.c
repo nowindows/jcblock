@@ -76,6 +76,7 @@ static void open_port( int mode );
 static void close_open_port( int doCallerID );
 int init_modem(int fd, int doCallerID );
 
+
 static char *copyright = "\n Running jcblock\n\n";
 
 // Main function
@@ -252,9 +253,10 @@ int wait_for_response(fd)
   int nbytes;           // Number of bytes read
   int i, j;
   int NAMEn, NMBRn ;
+  
   time_t now = time(NULL);
   struct tm *now_tm = localtime(&now);
-  char callTime[] = "YYYY-MM-DDTHH:MM";  
+  char iso_8601[] = "YYYY-MM-DDTHH:MM:SS";  
 
   // Get a string of characters from the modem
   while(1)
@@ -263,7 +265,10 @@ int wait_for_response(fd)
     // Flush anything in stdout (needed if stdout is redirected to a disk file).
     fflush(stdout);     // flush C library buffers to kernel buffers
     sync();             // flush kernel buffers to disk
-      printf("Waiting for modem event...\n");
+	now = time(NULL);
+	now_tm = localtime(&now);
+	strftime(iso_8601, sizeof (iso_8601), "%FT%R:%S", now_tm);
+	printf("Waiting for modem event... %s\n",iso_8601) ;
 #endif
 
 // Block until at least one character is available. After first character is
@@ -311,7 +316,10 @@ int wait_for_response(fd)
 // A caller ID string was constructed.
 
 // Create callTime from current time
-	strftime(callTime, sizeof callTime, "%FT%R", now_tm);
+	now = time(NULL);
+	now_tm = localtime(&now);
+	strftime(iso_8601, sizeof (iso_8601), "%FT%R", now_tm);
+	
 
 // set the caller ID name string callID and terminate it
     const char *p1callID = strstr(buffer, "NAME")+7;
@@ -331,7 +339,7 @@ int wait_for_response(fd)
     callNumber[lenN] = '\0';
 
 // set the callIDentry, put '\n' at end and null-terminate it    
-    sprintf(callerIDentry,"%s|%s|%s|",callTime,callNumber,callID) ;
+    sprintf(callerIDentry,"%s|%s|%s|",iso_8601,callNumber,callID) ;
     size_t lenID = strlen(callerIDentry);
     callerIDentry[lenID] = '\n';
     callerIDentry[lenID + 1] = 0;
