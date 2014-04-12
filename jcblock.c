@@ -49,6 +49,7 @@ FILE *fpCa;                // callerID.dat file
 FILE *fpBl;               // blacklist.dat file
 
 #define DEBUG
+#define OUTPUT_TO_LOG
 
 #define CALLERID_YES 1
 #define CALLERID_NO 0
@@ -76,6 +77,7 @@ static void open_port( int mode );
 static void close_open_port( int doCallerID );
 int init_modem(int fd, int doCallerID );
 
+FILE *stdoutStream ;
 
 static char *copyright = "\n Running jcblock\n\n";
 
@@ -108,9 +110,19 @@ int main(int argc, char **argv)
       }
     }
   }
-
+  
+// If jcblock is called from cron
+// BE SURE TO USE ABSOLUTE PATHS FOR <ANY> FILES THAT ARE OPENED
+#ifdef OUTPUT_TO_LOG
+if((stdoutStream = freopen("/home/pi/jcblock/jcblock.log", "a+", stdout)) == NULL)
+  exit(-1);
+#endif
+  
+  
   // Display copyright notice
   printf( "%s", copyright );
+  
+  
 
   // Open or create a file to append caller ID strings to
   if( (fpCa = fopen( "/home/pi/jcblock/callerID.dat", "a+" ) ) == NULL )
@@ -143,6 +155,9 @@ int main(int argc, char **argv)
     fclose(fpBl);
     fclose(fpWh);
     fflush(stdout);
+#ifdef OUTPUT_TO_LOG
+	fclose(stdoutStream) ;
+#endif	
     sync();
     return;
   }
@@ -159,6 +174,9 @@ modemInitialized = TRUE;
   fclose(fpBl);
   fclose(fpWh);
   fflush(stdout);
+#ifdef OUTPUT_TO_LOG
+  fclose(stdoutStream) ;
+#endif	
   sync();
 }
 
@@ -262,13 +280,14 @@ int wait_for_response(fd)
   while(1)
   {
 #ifdef DEBUG
-    // Flush anything in stdout (needed if stdout is redirected to a disk file).
-    fflush(stdout);     // flush C library buffers to kernel buffers
-    sync();             // flush kernel buffers to disk
 	now = time(NULL);
 	now_tm = localtime(&now);
 	strftime(iso_8601, sizeof (iso_8601), "%FT%R:%S", now_tm);
 	printf("Waiting for modem event... %s\n",iso_8601) ;
+	
+    // Flush anything in stdout (needed if stdout is redirected to a disk file).
+    fflush(stdout);     // flush C library buffers to kernel buffers
+    sync();             // flush kernel buffers to disk
 #endif
 
 // Block until at least one character is available. After first character is
@@ -296,6 +315,7 @@ int wait_for_response(fd)
 #ifdef DEBUG
 //    printf("%d bytes received: %s", nbytes, buffer );
 	printf("%s", buffer );
+	fflush(stdout);
 #endif
 
 // A string was received. If its a 'RING' string, just ignore it.
@@ -391,6 +411,7 @@ int wait_for_response(fd)
       //
       continue;
     }
+    fflush(stdout);
   }         // end of while()
 } // End of wait_for_response
 
@@ -526,7 +547,8 @@ static bool check_whitelist( char *callstr )
       sync();
 
       // A whitelist.dat entry matched, so return TRUE
-      return(TRUE);             // accept the call
+	  fflush(stdout);
+	  return(TRUE);             // accept the call
     }
   }                               // end of while()
 
@@ -701,7 +723,8 @@ static bool check_blacklist( char *callstr )
       sync();
 
       // A blacklist.dat entry matched, so return TRUE
-      return(TRUE);
+	  fflush(stdout);
+	  return(TRUE);
     }
   }                                         // end of while()
 
@@ -806,6 +829,9 @@ static void cleanup( int signo )
   fclose(fpBl);
   fclose(fpWh);
   fflush(stdout);     // flush C library buffers to kernel buffers
+#ifdef OUTPUT_TO_LOG
+  fclose(stdoutStream) ;
+#endif	  
   sync();             // flush kernel buffers to disk
 
   // If program is in a blocked read(...) call, use kill() to
