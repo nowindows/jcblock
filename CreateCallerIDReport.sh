@@ -9,6 +9,13 @@
 # YYYY-MM-DDThh:mm|callnumber|callerid_string|
 #2014-01-21T11:25|1|Unavailable |
 
+if [ "$#" -ne 1 ] ; then
+  echo "Supply a callerID file as an argument"
+  echo ""
+  echo "Usage: $0 callerIDfile" >&2
+  exit 1
+fi
+
 > callerID.Report
 firstDate=$(cat callerID.dat | head -n1 $1 | cut -c-10)
 lastDate=$(cat callerID.dat | tail -n1 $1 | cut -c-10) 
