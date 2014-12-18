@@ -2,6 +2,24 @@
 Program: jcblock
 
 A program to block telemarketing (junk) calls.
+_________________________________________________
+RECENT ACTIVITY (December 2014)
+
+Additional extensive optimization of jcblock for Raspberry Pi - Model B, running
+Raspbian, a TRENDnet TFM-561U USB modem, Microcenter Class 10 USB card, EasyAcc
+Micro USB Power Supply, in the US was done.
+
+The option of logging information to a jcblock.log was added for informational
+purposes and to assist in debugging and optimizing modem command timing.
+
+The timing of file I/O command and modem commands was studied and optimized with the
+intent of reducing the time to detect end blacklist calls. Using a phone that has the
+ability to silence the first ring has resulted in totally silent call blocking.
+
+This version can handle caller ID strings with the NAME and NMBR strings in either
+order.
+
+This pi setup has been running successfully for eighteen months.
 
 ________________________________________________________________________________
 RECENT ACTIVITY (March 2014):
